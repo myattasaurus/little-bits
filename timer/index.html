@@ -4,13 +4,17 @@
     <meta charset="utf-8">
     <title>Timer</title>
     <link rel="stylesheet" href="index.css">
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', onLoad);
+    </script>
 </head>
 <body>
 <div class="column" id="dontainer">
     <h1>Timer</h1>
     <div id="timer">00:00:00</div>
     <div class="row">
-        <button id="button">Start</button>
+        <button id="button" data-state="2">Start</button>
     </div>
 </div>
 </body>
