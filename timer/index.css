@@ -1,0 +1,19 @@
+#dontainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#timer {
+    font-size: xxx-large;
+    padding-bottom: 0.66em;
+}
+
+.column {
+    flex-direction: column;
+}
+.row {
+    flex-direction: row;
+}
