@@ -1,0 +1,45 @@
+#dontainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    margin: 0.5em;
+}
+.row {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+h1 {
+    font-size: x-large;
+    margin-bottom: 0.25em;
+}
+.huge-text {
+    font-size: 4em;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+}
+.normal-text {
+    font-size: small;
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+}
+.shifter {
+    border: 1px solid black;
+    border-radius: 0.4em;
+}
+button {
+    border: none;
+    background: none;
+}
