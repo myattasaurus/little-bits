@@ -5,7 +5,7 @@ let interval = {};
 
 export function start(callback) {
     if (!id) {
-        interval.startingTimestamp = performance.now();
+        interval.startingTimestamp = Date.now();
         interval.previousTimestamp = interval.startingTimestamp;
         func = callback;
         id = requestAnimationFrame(frame);
@@ -19,7 +19,7 @@ export function stop() {
     }
 }
 function frame() {
-    interval.currentTimestamp = performance.now();
+    interval.currentTimestamp = Date.now();
     interval.deltaMillis = interval.currentTimestamp - interval.currentTimestamp;
     interval.deltaSeconds = interval.deltaMillis / 1000;
 

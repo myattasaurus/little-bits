@@ -1,4 +1,5 @@
 import * as timer from '../src/timer.js'
+import * as animation from '../src/animation.js'
 
 let button;
 
@@ -8,7 +9,6 @@ let STOPPED = 2;
 document.addEventListener('DOMContentLoaded', onLoad);
 
 function onLoad() {
-
     button = document.getElementById('button');
     button.addEventListener('click', onClickButton);
 }
@@ -20,10 +20,15 @@ function onClickButton(e) {
         state = STARTED;
         text = 'Stop';
         timer.start(document.getElementById('timer'));
+        animation.start(interval => {
+            timer.update(interval);
+            timer.draw();
+        })
     } else {
         state = STOPPED;
         text = 'Start';
         timer.stop();
+        animation.stop();
     }
     button.setAttribute('data-state', state);
     button.innerText = text;

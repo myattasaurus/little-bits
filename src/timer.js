@@ -1,29 +1,37 @@
-import * as animation from '../src/animation.js'
+let element, seconds, minutes, hours, totalSeconds;
 
-let element;
-
-export function start(elem) {
+export function start(elem = element) {
     element = elem;
-    animation.start(tick);
+    if (element.getAttribute('data-ascending') === undefined || element.getAttribute('data-ascending') === null) {
+        element.setAttribute('data-ascending', 'true');
+    }
+    if (element.getAttribute('data-init-seconds') === undefined || element.getAttribute('data-init-seconds') === null) {
+        element.setAttribute('data-init-seconds', '0');
+    }
 }
 export function stop() {
-    animation.stop();
     element.innerText = '0:00';
 }
+export function update(interval) {
+    let bufferSeconds = Number(element.getAttribute('data-init-seconds'));
+    let ascending = element.getAttribute('data-ascending') === 'true' ? 1 : -1;
+    let secondsSinceStart = ascending * (interval.currentTimestamp - interval.startingTimestamp);
+    totalSeconds = bufferSeconds + ascending * Math.floor(ascending * secondsSinceStart / 1000);
 
-let bufferSeconds = 0; // makes testing easier
-function tick(interval) {
-    let secondsSinceStart = bufferSeconds + Math.floor((interval.currentTimestamp - interval.startingTimestamp) / 1000);
-    let seconds = secondsSinceStart % 60;
-    let minutes = Math.floor(secondsSinceStart / 60) % 60;
-    let hours = Math.floor(secondsSinceStart / 60 / 60);
-
+    seconds = totalSeconds % 60;
+    minutes = Math.floor(totalSeconds / 60) % 60;
+    hours = Math.floor(totalSeconds / 60 / 60);
+}
+export function draw() {
     if (hours > 0) {
         element.innerText = `${hours}:${pad(minutes)}:${pad(seconds)}`;
     } else if (minutes > 0) {
         element.innerText = `${minutes}:${pad(seconds)}`;
     } else {
         element.innerText = `0:${pad(seconds)}`;
+    }
+    if (totalSeconds < 0) {
+        element.innerText = `-${element.innerText}`;
     }
 }
 function pad(digits) {
