@@ -5,7 +5,6 @@ let STARTED = 1;
 let STOPPED = 2;
 
 let audio = new AudioContext();
-let gain;
 let oscillator;
 let timerDiv;
 let wakeLock;
@@ -13,14 +12,6 @@ let wakeLock;
 document.addEventListener('DOMContentLoaded', onLoad);
 
 function onLoad() {
-    gain = audio.createGain();
-    gain.gain.value = 0;
-
-    oscillator = audio.createOscillator();
-    oscillator.type = 'square';
-    oscillator.frequency.setValueAtTime(518, audio.currentTime);
-    oscillator.connect(gain).connect(audio.destination);
-
     let div = document.createElement('div');
     div.classList.add('column');
     div.id = 'dontainer';
@@ -29,7 +20,7 @@ function onLoad() {
     timer.init(timerDiv);
     timerDiv.id = 'timer';
     timerDiv.classList.add('huge-text');
-    timerDiv.setAttribute('data-init-seconds', '1');
+    timerDiv.setAttribute('data-init-seconds', '2');
     timerDiv.setAttribute('data-ascending', 'false');
     div.appendChild(timerDiv);
 
@@ -55,46 +46,55 @@ async function onClickButton(e) {
         }
         state = STARTED;
         text = 'Stop';
-        timer.start(timerDiv);
-        animation.startTimeout(tick);
-        // Buzzer
-        {
-            if (audio.state === 'suspended') {
-                audio.resume().then(() => {
-                    oscillator.start();
-                    setBuzzer();
-                });
-            } else {
-                setBuzzer();
-            }
+        timer.start(timerDiv, audio.currentTime);
+        animation.startAnimation(tick);
+        if (audio.state === 'suspended') {
+            await audio.resume();
         }
+        setBuzzer();
+
     } else {
         if (wakeLock) {
             await wakeLock.release();
         }
         state = STOPPED;
         text = 'Start';
-        gain.gain.cancelScheduledValues(0);
-        animation.stopTimeout();
+        oscillator.stop();
+        animation.stopAnimation();
         timer.stop(timerDiv);
     }
     button.setAttribute('data-state', state);
     button.innerText = text;
 }
 function setBuzzer() {
+    let gain = audio.createGain();
+
+    oscillator = audio.createOscillator();
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(518, audio.currentTime);
+    oscillator.connect(gain).connect(audio.destination);
+    oscillator.addEventListener('ended', e => {
+        oscillator.disconnect();
+        gain.disconnect();
+    });
+
+    // Prime the oscillator, so that stupid javascript doesn't play the stupid actual sound late
+    gain.gain.value = 0.00001;
+    oscillator.start();
+
+    // Play the stupid sound at the actual stupid time
     let buzzerStartTime; {
+        let audioCurrentTime = audio.currentTime;
         let startupDelay; {
-            let now = Date.now();
             let timerStartTs = Number(timerDiv.getAttribute('data-start-ts'));
-            startupDelay = (now - timerStartTs) / 1000;
-            console.log(startupDelay);
+            startupDelay = audioCurrentTime - timerStartTs;
         }
         let timerSeconds = Number(timerDiv.getAttribute('data-init-seconds'));
-        buzzerStartTime = audio.currentTime + timerSeconds - startupDelay;
+        buzzerStartTime = audioCurrentTime + timerSeconds - startupDelay;
     }
     gain.gain.setValueAtTime(0.25, buzzerStartTime);
-    gain.gain.setValueAtTime(0, buzzerStartTime + 1);
+    oscillator.stop(buzzerStartTime + 1);
 }
 function tick(interval) {
-    timer.update(timerDiv);
+    timer.update(timerDiv, audio.currentTime);
 }

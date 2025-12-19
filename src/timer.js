@@ -1,27 +1,29 @@
 export function init(element) {
     element.innerText = '0:00';
 }
-export function start(element) {
+export function now() {
+    return performance.now();
+}
+export function start(element, currentTimestamp) {
     if (element.getAttribute('data-ascending') === undefined || element.getAttribute('data-ascending') === null) {
         element.setAttribute('data-ascending', 'true');
     }
     if (element.getAttribute('data-init-seconds') === undefined || element.getAttribute('data-init-seconds') === null) {
         element.setAttribute('data-init-seconds', '0');
     }
-    element.setAttribute('data-start-ts', Date.now());
+    element.setAttribute('data-start-ts', currentTimestamp);
 }
 export function stop(element) {
     init(element);
     element.removeAttribute('data-seconds');
     element.removeAttribute('data-start-ts');
 }
-export function update(element) {
+export function update(element, currentTimestamp) {
     let bufferSeconds = Number(element.getAttribute('data-init-seconds'));
     let ascending = element.getAttribute('data-ascending') === 'true' ? 1 : -1;
     let startingTimestamp = Number(element.getAttribute('data-start-ts'));
-    let currentTimestamp = Date.now();
     let secondsSinceStart = ascending * (currentTimestamp - startingTimestamp);
-    let totalSeconds = bufferSeconds + ascending * Math.floor(ascending * secondsSinceStart / 1000);
+    let totalSeconds = bufferSeconds + ascending * Math.floor(ascending * secondsSinceStart);
     let previousSeconds = Number(element.getAttribute('data-seconds'));
 
     if (previousSeconds !== totalSeconds) {
