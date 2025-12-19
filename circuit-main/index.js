@@ -7,7 +7,6 @@ let STOPPED = 2;
 let audio = new AudioContext();
 let gain;
 let oscillator;
-let oscillatorStarted = false;
 let timerDiv;
 let wakeLock;
 
@@ -30,7 +29,7 @@ function onLoad() {
     timer.init(timerDiv);
     timerDiv.id = 'timer';
     timerDiv.classList.add('huge-text');
-    timerDiv.setAttribute('data-init-seconds', '60');
+    timerDiv.setAttribute('data-init-seconds', '5');
     timerDiv.setAttribute('data-ascending', 'false');
     div.appendChild(timerDiv);
 
@@ -43,10 +42,6 @@ function onLoad() {
     document.body.appendChild(div);
 }
 async function onClickButton(e) {
-    if (!oscillatorStarted) {
-        oscillator.start();
-        oscillatorStarted = true;
-    }
     let button = e.target;
     let state = Number(button.getAttribute('data-state'))
     let text;
@@ -62,19 +57,38 @@ async function onClickButton(e) {
         text = 'Stop';
         timer.start(timerDiv);
         animation.startTimeout(tick);
+        // Buzzer
+        {
+            if (audio.state === 'suspended') {
+                let before = Date.now();
+                audio.resume().then(() => {
+                    let after = Date.now();
+                    let startupDelayMillis = after - before;
+                    oscillator.start();
+                    setBuzzer(startupDelayMillis);
+                })
+            } else {
+                setBuzzer();
+            }
+        }
     } else {
         if (wakeLock) {
             await wakeLock.release();
         }
         state = STOPPED;
         text = 'Start';
+        gain.gain.cancelScheduledValues(0);
         animation.stopTimeout();
         timer.stop(timerDiv);
     }
     button.setAttribute('data-state', state);
     button.innerText = text;
 }
+function setBuzzer(startupDelayMillis = 0) {
+    let buzzerStartTime = audio.currentTime + Number(timerDiv.getAttribute('data-init-seconds')) - startupDelayMillis / 1000;
+    gain.gain.setValueAtTime(0.25, buzzerStartTime);
+    gain.gain.setValueAtTime(0, buzzerStartTime + 1);
+}
 function tick(interval) {
     timer.update(timerDiv);
-    gain.gain.value = timerDiv.getAttribute('data-seconds') === '0' ? 0.25 : 0;
 }
