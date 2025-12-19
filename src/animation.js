@@ -1,19 +1,34 @@
 let id;
 let func;
+let startFrame;
 
 let interval = {};
 
-export function start(callback) {
+export function startAnimation(callback) {
+    startFrame = requestAnimationFrame;
+    start(callback);
+}
+export function stopAnimation() {
+    stop(cancelAnimationFrame);
+}
+export function startTimeout(callback) {
+    startFrame = setTimeout;
+    start(callback);
+}
+export function stopTimeout() {
+    stop(clearTimeout);
+}
+function start(callback) {
     if (!id) {
         interval.startingTimestamp = Date.now();
         interval.previousTimestamp = interval.startingTimestamp;
         func = callback;
-        id = requestAnimationFrame(frame);
+        id = startFrame(frame);
     }
 }
-export function stop() {
+function stop(stopFrame) {
     if (id) {
-        cancelAnimationFrame(id);
+        stopFrame(id);
         id = null;
         interval = {};
     }
@@ -27,5 +42,5 @@ function frame() {
 
     interval.previousTimestamp = interval.currentTimestamp;
 
-    id = requestAnimationFrame(frame);
+    id = startFrame(frame);
 }

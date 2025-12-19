@@ -61,23 +61,20 @@ async function onClickButton(e) {
         state = STARTED;
         text = 'Stop';
         timer.start(timerDiv);
-        animation.start(tick);
+        animation.startTimeout(tick);
     } else {
         if (wakeLock) {
             await wakeLock.release();
         }
         state = STOPPED;
         text = 'Start';
+        animation.stopTimeout();
         timer.stop(timerDiv);
-        animation.stop();
     }
     button.setAttribute('data-state', state);
     button.innerText = text;
 }
 function tick(interval) {
-    timer.update(interval, timerDiv);
-    gain.gain.value = Number(timerDiv.getAttribute('data-seconds')) === 0 ? 0.25 : 0;
-
-    // Draw
-    timer.draw(timerDiv);
+    timer.update(timerDiv);
+    gain.gain.value = timerDiv.getAttribute('data-seconds') === '0' ? 0.25 : 0;
 }
