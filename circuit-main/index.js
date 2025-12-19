@@ -29,7 +29,7 @@ function onLoad() {
     timer.init(timerDiv);
     timerDiv.id = 'timer';
     timerDiv.classList.add('huge-text');
-    timerDiv.setAttribute('data-init-seconds', '5');
+    timerDiv.setAttribute('data-init-seconds', '1');
     timerDiv.setAttribute('data-ascending', 'false');
     div.appendChild(timerDiv);
 
@@ -60,13 +60,10 @@ async function onClickButton(e) {
         // Buzzer
         {
             if (audio.state === 'suspended') {
-                let before = Date.now();
                 audio.resume().then(() => {
-                    let after = Date.now();
-                    let startupDelayMillis = after - before;
                     oscillator.start();
-                    setBuzzer(startupDelayMillis);
-                })
+                    setBuzzer();
+                });
             } else {
                 setBuzzer();
             }
@@ -84,8 +81,17 @@ async function onClickButton(e) {
     button.setAttribute('data-state', state);
     button.innerText = text;
 }
-function setBuzzer(startupDelayMillis = 0) {
-    let buzzerStartTime = audio.currentTime + Number(timerDiv.getAttribute('data-init-seconds')) - startupDelayMillis / 1000;
+function setBuzzer() {
+    let buzzerStartTime; {
+        let startupDelay; {
+            let now = Date.now();
+            let timerStartTs = Number(timerDiv.getAttribute('data-start-ts'));
+            startupDelay = (now - timerStartTs) / 1000;
+            console.log(startupDelay);
+        }
+        let timerSeconds = Number(timerDiv.getAttribute('data-init-seconds'));
+        buzzerStartTime = audio.currentTime + timerSeconds - startupDelay;
+    }
     gain.gain.setValueAtTime(0.25, buzzerStartTime);
     gain.gain.setValueAtTime(0, buzzerStartTime + 1);
 }
