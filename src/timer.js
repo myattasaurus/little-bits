@@ -1,7 +1,9 @@
-let element, seconds, minutes, hours, totalSeconds;
+let seconds, minutes, hours, totalSeconds;
 
-export function start(elem = element) {
-    element = elem;
+export function init(element) {
+    element.innerText = '0:00';
+}
+export function start(element) {
     if (element.getAttribute('data-ascending') === undefined || element.getAttribute('data-ascending') === null) {
         element.setAttribute('data-ascending', 'true');
     }
@@ -9,20 +11,22 @@ export function start(elem = element) {
         element.setAttribute('data-init-seconds', '0');
     }
 }
-export function stop() {
-    element.innerText = '0:00';
+export function stop(element) {
+    init(element);
+    element.removeAttribute('data-seconds');
 }
-export function update(interval) {
+export function update(interval, element) {
     let bufferSeconds = Number(element.getAttribute('data-init-seconds'));
     let ascending = element.getAttribute('data-ascending') === 'true' ? 1 : -1;
     let secondsSinceStart = ascending * (interval.currentTimestamp - interval.startingTimestamp);
     totalSeconds = bufferSeconds + ascending * Math.floor(ascending * secondsSinceStart / 1000);
+    element.setAttribute('data-seconds', totalSeconds);
 
     seconds = totalSeconds % 60;
     minutes = Math.floor(totalSeconds / 60) % 60;
     hours = Math.floor(totalSeconds / 60 / 60);
 }
-export function draw() {
+export function draw(element) {
     if (hours > 0) {
         element.innerText = `${hours}:${pad(minutes)}:${pad(seconds)}`;
     } else if (minutes > 0) {

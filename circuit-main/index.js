@@ -5,17 +5,30 @@ let STARTED = 1;
 let STOPPED = 2;
 
 let audio = new AudioContext();
+let gain;
+let oscillator;
+let oscillatorStarted = false;
+let timerDiv;
+let wakeLock;
 
 document.addEventListener('DOMContentLoaded', onLoad);
 
 function onLoad() {
+    gain = audio.createGain();
+    gain.gain.value = 0;
+
+    oscillator = audio.createOscillator();
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(518, audio.currentTime);
+    oscillator.connect(gain).connect(audio.destination);
+
     let div = document.createElement('div');
     div.classList.add('column');
     div.id = 'dontainer';
 
-    let timerDiv = document.createElement('div');
+    timerDiv = document.createElement('div');
+    timer.init(timerDiv);
     timerDiv.id = 'timer';
-    timerDiv.innerText = '0:00';
     timerDiv.classList.add('huge-text');
     timerDiv.setAttribute('data-init-seconds', '60');
     timerDiv.setAttribute('data-ascending', 'false');
@@ -29,26 +42,42 @@ function onLoad() {
 
     document.body.appendChild(div);
 }
-function onClickButton(e) {
+async function onClickButton(e) {
+    if (!oscillatorStarted) {
+        oscillator.start();
+        oscillatorStarted = true;
+    }
     let button = e.target;
     let state = Number(button.getAttribute('data-state'))
     let text;
 
     if (state === STOPPED) {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', e => wakeLock = null);
+        } catch (error) {
+            console.error(error);
+        }
         state = STARTED;
         text = 'Stop';
-        timer.start(document.getElementById('timer'));
+        timer.start(timerDiv);
         animation.start(tick);
     } else {
+        if (wakeLock) {
+            await wakeLock.release();
+        }
         state = STOPPED;
         text = 'Start';
-        timer.stop();
+        timer.stop(timerDiv);
         animation.stop();
     }
     button.setAttribute('data-state', state);
     button.innerText = text;
 }
 function tick(interval) {
-    timer.update(interval);
-    timer.draw();
+    timer.update(interval, timerDiv);
+    gain.gain.value = Number(timerDiv.getAttribute('data-seconds')) === 0 ? 0.25 : 0;
+
+    // Draw
+    timer.draw(timerDiv);
 }
