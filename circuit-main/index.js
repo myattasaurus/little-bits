@@ -46,13 +46,13 @@ async function onClickButton(e) {
         }
         state = STARTED;
         text = 'Stop';
-        timer.start(timerDiv, audio.currentTime);
+        timer.start(timerDiv);
         animation.startAnimation(tick);
         if (audio.state === 'suspended') {
-            await audio.resume();
+            audio.resume().then(setBuzzer);
+        } else {
+            setBuzzer();
         }
-        setBuzzer();
-
     } else {
         if (wakeLock) {
             await wakeLock.release();
@@ -84,17 +84,19 @@ function setBuzzer() {
 
     // Play the stupid sound at the actual stupid time
     let buzzerStartTime; {
-        let audioCurrentTime = audio.currentTime;
-        let startupDelay; {
+        let duration; {
+            let timerCurrentTs = timer.now();
             let timerStartTs = Number(timerDiv.getAttribute('data-start-ts'));
-            startupDelay = audioCurrentTime - timerStartTs;
+            let timerDuration = Number(timerDiv.getAttribute('data-init-seconds')) * 1000;
+            let timerEndTs = timerDuration + timerStartTs;
+            duration = timerEndTs - timerCurrentTs;
         }
-        let timerSeconds = Number(timerDiv.getAttribute('data-init-seconds'));
-        buzzerStartTime = audioCurrentTime + timerSeconds - startupDelay;
+        let audioCurrentTs = audio.currentTime * 1000;
+        buzzerStartTime = (audioCurrentTs + duration) / 1000;
     }
     gain.gain.setValueAtTime(0.25, buzzerStartTime);
     oscillator.stop(buzzerStartTime + 1);
 }
 function tick(interval) {
-    timer.update(timerDiv, audio.currentTime);
+    timer.update(timerDiv);
 }
