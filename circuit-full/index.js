@@ -53,8 +53,9 @@ document.addEventListener('DOMContentLoaded', function() {
         let shifter = document.createElement('div');
         shifter.classList.add('shifter');
 
-        let amt = document.createElement('div');
+        let amt = document.createElement('input');
         amt.classList.add('huge-text');
+        amt.setAttribute('type', 'text');
         amt.setAttribute('data-value', amount);
         amt.setAttribute('data-step', step);
         amt.setAttribute('data-min', min);
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return square;
     }
     function displayNumber(element) {
-        element.innerText = element.getAttribute('data-value');
+        element.value = element.getAttribute('data-value');
     }
     function displayTime(element) {
         let totalSeconds = Number(element.getAttribute('data-value'));

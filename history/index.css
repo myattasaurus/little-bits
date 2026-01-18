@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 90vh;
+    min-height: 100vh;
 
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
@@ -10,7 +10,7 @@
 .column {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     text-align: center;
     margin: 0.5em;
 }
@@ -22,9 +22,6 @@
 h1 {
     font-size: x-large;
     margin-bottom: 0.25em;
-}
-input {
-    border: none;
 }
 .huge-text {
     font-size: 4em;
@@ -41,4 +38,8 @@ input {
 .shifter {
     border: 1px solid black;
     border-radius: 0.4em;
+}
+button {
+    border: none;
+    background: none;
 }
