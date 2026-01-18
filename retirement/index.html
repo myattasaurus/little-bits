@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" name="viewport" content="initial-scale=1.0, width=device-width">
+    <title>$$$</title>
+    <link rel="stylesheet" href="index.css">
+    <script type="text/javascript" src="retirement.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', onLoad);
+    </script>
+</head>
+<body>
+<div id="dontainer">
+    <div>
+        <h2>Retirement</h2>
+        <ul>
+            <li>Monthly Expenses: $<input type="number" step="100" value="3000" id="expenses" /></li>
+            <li>APY on principle: <input type="number" step="1" value="7" id="apy" />%</li>
+            <li>Inflation: <input type="number" step="1" value="4" id="inflation" />%</li>
+            <li>Principle needed: <span id="principle"></span></li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
